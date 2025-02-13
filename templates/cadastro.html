@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    Cadastrar - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+{% if mensagem %}
+    <div id="message-container" class="alert alert-danger" style="display: block;">
+        {{ mensagem }}
+    </div>
+{% endif %}
+
+<div class="form-container">
+    <h2 style="margin-bottom: 20px;">Crie sua Conta</h2>
+    <form action="/create" method="POST" onsubmit="return verificarSenhas()">
+        <div class="form-group">
+            <label for="name">Nome</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                placeholder="Digite seu nome"
+                pattern="[A-Za-zÀ-ÿ\s]+"
+                title="O nome só pode conter letras e espaços"
+                maxlength="100"
+                value="{{ request.form['name'] if request.form.get('name') else '' }}">
+        </div>
+
+        <!-- Novo campo de username -->
+        <div class="form-group">
+            <label for="username">Nome de Usuário</label>
+            <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                placeholder="Escolha um nome de usuário"
+                pattern="[A-Za-z0-9_]+"
+                title="O nome de usuário só pode conter letras, números e underscores"
+                maxlength="50"
+                value="{{ request.form['username'] if request.form.get('username') else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="Digite seu email"
+                maxlength="150"
+                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                title="Digite um e-mail válido"
+                class="{% if erro_email %} input-error {% endif %}"
+                value="{{ request.form['email'] if request.form.get('email') else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="telephone">Telefone</label>
+            <input
+                type="tel"
+                id="telephone"
+                name="telephone"
+                required
+                placeholder="Digite seu telefone"
+                pattern="\(\d{2}\)\s\d{4,5}-\d{4}"
+                title="Telefone no formato (XX) XXXXX-XXXX"
+                oninput="formatarTelefone(this)"
+                value="{{ request.form['telephone'] if request.form.get('telephone') else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Senha</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                placeholder="Digite sua senha"
+                minlength="8"
+                maxlength="20"
+                title="A senha deve ter entre 8 e 20 caracteres, incluindo letras e números">
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirmar Senha</label>
+            <input
+                type="password"
+                id="confirm_password"
+                name="confirm_password"
+                required
+                placeholder="Confirme sua senha"
+                minlength="8"
+                maxlength="20"
+                title="As senhas precisam coincidir">
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Cadastrar" class="btn-submit">
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+<style>
+    .input-error {
+        border: 2px solid red;
+    }
+</style>

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    Dashboard - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+    <div class="container dashboard">
+        {% if mensagem %}
+            <div id="message-container" class="alert alert-success" style="display: block;">
+                {{ mensagem }}
+            </div>
+        {% endif %}
+        
+        <section>
+            <ul class="user_infos">
+                <li>
+                    <a href="#">Perfil</a>
+                </li>
+                <li>
+                    <a href="#">Minhas Compras</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('anuncios') }}">Meus Anuncios</a>
+                </li>
+            </ul>
+        </section>
+
+        <h1>Olá, {{ user[1] }}! Bem-vindo ao seu painel</h1>
+        <form method="POST">
+            <div>
+                <label for="name">Nome:</label>
+                <input type="text" id="name" name="name" value="{{ user[1] }}" required class="{% if erro_nome %} input-error {% endif %}">
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="{{ user[2] }}" required class="{% if erro_email %} input-error {% endif %}">
+            </div>
+            <div>
+                <label for="telephone">Telefone:</label>
+                <input type="text" id="telephone" name="telephone" value="{{ user[3] }}" required class="{% if erro_telefone %} input-error {% endif %}">
+            </div>
+            <div class="container_btns">
+                <input type="submit" class="btn-submit" value="Atualizar Informações">
+                <a href="{{ url_for('logout') }}" class="btn-submit" id="logout-btn">Logout</a>
+            </div>
+        </form>
+
+    </div>
+
+    <style>
+        .input-error {
+            border: 2px solid red;
+        }
+    </style>
+
+{% endblock %}

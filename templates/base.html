@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Página Inicial{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <h2><a href="{{ url_for('page_produto') }}">FastBuy</a></h2>
+            <ul>
+                <li><a href="{{ url_for('page_sobre') }}">Sobre</a></li>
+                <li><a href="{{ url_for('page_produto') }}">Produtos</a></li>
+
+                {% if not session.get('logged_in') %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('form') }}">Cadastro</a></li>
+                {% else %}
+                    <li>
+                        <a href="{{ url_for('vender_produto') }}">
+                            Vender
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('dashboard') }}" id="user-name">
+                            {{ session['user_name'] }}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} animate__animated animate__fadeIn" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+
+
+
+        {% block conteudo %}
+        <!-- O conteúdo da página será injetado aqui -->
+        {% endblock %}
+        </div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <p>Desenvolvido por <strong>Matheus Lourenço da Silva</strong></p>
+            <p>&copy; 2025</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

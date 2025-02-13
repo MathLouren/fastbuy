@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    Venda Seu Produto - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+    <section class="vender_produto">
+        <div class="vender-container">
+            <h2 class="section-title">Bem-vindo ao FastBuy</h2>
+            <p class="sub-title">O seu centro completo de compras e vendas online. Anuncie seus produtos aqui e alcance milhares de clientes!</p>
+
+            {% if mensagem %}
+                <div class="alert alert-success">
+                    {{ mensagem }}
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="product-form">
+                <div class="form-group">
+                    <label for="nome_produto">Nome do Produto</label>
+                    <input type="text" id="nome_produto" name="nome_produto" required placeholder="Digite o nome do produto" class="input-field">
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" required placeholder="Descreva o produto" class="input-field" maxlength="1500" oninput="atualizarContador()"></textarea>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="preco">Preço (R$)</label>
+                    <input type="text" id="preco" name="preco" required placeholder="Digite o preço do produto" class="input-field" oninput="formatarPreco(this)">
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem">Imagem do Produto</label>
+                    <input type="file" id="imagem" name="imagem" required class="input-file">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" value="Anunciar Produto" class="btn-submit">
+                </div>
+            </form>
+        </div>
+    </section>
+
+{% endblock %}

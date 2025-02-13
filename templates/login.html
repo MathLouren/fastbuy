@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    Entrar - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+
+    {% if mensagem %}
+        <div id="message-container" class="alert alert-danger" style="display: block;">
+            {{ mensagem }}
+        </div>
+    {% endif %}
+    <div class="form-container">
+        <h2 style="margin-bottom: 20px;">Logue com sua conta</h2>
+        <form action="/login" method="POST" onsubmit="return verificarSenhas()">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="Digite seu email">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Entrar" class="btn-submit">
+            </div>
+        </form>
+    </div>
+{% endblock %}

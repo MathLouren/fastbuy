@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    Home - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+    {% for item in itens %}
+    <p>{{ item[1] }}</p>
+    {% endfor %}
+{% endblock %}
