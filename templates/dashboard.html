@@ -40,6 +40,10 @@
                 <label for="telephone">Telefone:</label>
                 <input type="text" id="telephone" name="telephone" value="{{ user[3] }}" required class="{% if erro_telefone %} input-error {% endif %}">
             </div>
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="{{ user[6] }}" required class="{% if erro_username %} input-error {% endif %}">
+            </div>
             <div class="container_btns">
                 <input type="submit" class="btn-submit" value="Atualizar Informações">
                 <a href="{{ url_for('logout') }}" class="btn-submit" id="logout-btn">Logout</a>

@@ -106,14 +106,13 @@ def login():
         conn = mysql.connection
         cursor = conn.cursor()
 
-        cursor.execute("SELECT id, password, name FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id, password, username, name FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
 
         if user and bcrypt.check_password_hash(user[1], password):  # Usa a função correta
             session['logged_in'] = True
             session['user_id'] = user[0]
-            session['user_name'] = user[2]
             mensagem = "Login realizado com sucesso!"
             return redirect(url_for('page_produto', mensagem=mensagem))
         else:
