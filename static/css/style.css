@@ -1,93 +1,158 @@
 *{
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-main);
 }
 
 html, body {
-height: 100%;
-margin: 0;
-display: flex;
-flex-direction: column;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 main {
-flex: 1;
-padding: 20px;
+    flex: 1;
+    padding: 20px;
 }
 
-
 .footer-content {
-text-align: center;
-margin-top: 60px;
-background-color: #333;
-color: white;
-padding: 20px 0;
-display: flex;
-flex-direction: column;
-gap: 10px;
+    text-align: center;
+    margin-top: 60px;
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 ul{
-list-style: none;
-color: #fff;
-display:flex;
-align-items: center;
+    list-style: none;
+    color: #fff;
+    display:flex;
+    align-items: center;
 }
 
 header li{
-margin: 0 10px;
-font-size: 20px;
+    margin: 0 10px;
+    font-size: 20px;
+}
+
+header ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+header ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.3rem;
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+header ul li a:hover {
+    background-color: #444;
+}
+
+header .menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    }
+
+header .bar {
+    width: 30px;
+    height: 4px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+
+    header nav{
+        padding: 10px !important;
+    }
+
+    header ul {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #333;
+        position: absolute;
+        top: 63px;
+        left: 0;
+        padding: 10px 0;
+    }
+
+    header ul li {
+        text-align: center;
+        width: 100%;
+        padding: 10px 0;
+    }
+
+    header .menu-toggle {
+        display: flex;
+    }
+
+    header ul.show {
+        display: flex;
+        margin-top: 37px;
+        position: absolute !important;
+        z-index: 1000;
+    }
 }
 
 a{
-text-decoration: none;
-color: #fff;
+    text-decoration: none;
+    color: #fff;
 }
 
 body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 0;
-background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
 }
 
 .header_container{
-width:100%;
-max-width: 1300px;
-margin: 0 auto;
-display: flex;
-justify-content: space-between;
-align-items:center;
+    width:100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items:center;
 }
 
 header {
-background-color: #333;
-color: white;
-padding: 20px 0;
-text-align: center;
-font-size: 2em;
-color: #fff;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    font-size: 2em;
+    color: #fff;
 }
 
 header nav h2{
-font-size: 2rem;
-color:#fff;
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
 }
 
-header nav{
-width: 100%;
-max-width: 1300px;
-margin: auto;
-display: flex;
-justify-content: space-around;
-align-items:center;
-}
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 5px;
+    background-color: #333;
+ }
 
 h2 {
 text-align: center;
-
 color: #333;
 }
 
@@ -95,6 +160,42 @@ color: #333;
 display: flex;
 justify-content: space-around;
 margin-top: 50px;
+}
+
+.title_produtos{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.search_produtos {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search_produtos input {
+    padding-right: 30px;
+    height: 40px;
+    font-size: 16px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.search_produtos .search-icon {
+    position: absolute;
+    top: 11px;
+    right: 10px;
+    height: 20px;
+    width: 20px;
 }
 
 .category {
@@ -637,8 +738,10 @@ margin: auto;
 
 .btn-delete{
     color:red;
+    margin: 0 20px;
 }
 
 .btn-edit{
     color:#333;
 }
+

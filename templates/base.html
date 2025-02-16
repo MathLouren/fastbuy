@@ -4,13 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block titulo %}Página Inicial{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/buy.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <header>
-        <nav>
-            <h2><a href="{{ url_for('page_produto') }}">FastBuy</a></h2>
-            <ul>
+        <nav class="header_container">
+            <a href="{{ url_for('page_produto') }}" style="display: flex; align-items: center; gap: 10px; margin: 0 5px;">
+                <h2>FastBuy</h2>
+                <img src="{{ url_for('static', filename='images/buy.png') }}" alt="FastBuy Logo" style="width:60px; margin-top: 20px;">
+            </a>
+            <div class="menu-toggle" id="menu-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul id="menu">
                 <li><a href="{{ url_for('page_sobre') }}">Sobre</a></li>
                 <li><a href="{{ url_for('page_produto') }}">Produtos</a></li>
 
@@ -29,28 +38,24 @@
                     </li>
                 {% endif %}
             </ul>
-        </nav>
+    </nav>
     </header>
 
     <main>
         <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div id="alert-container">
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} animate__animated animate__fadeIn" role="alert">
-                    {{ message }}
+            {% if messages %}
+                <div id="alert-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} animate__animated animate__fadeIn" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
-
-
-
+            {% endif %}
+        {% endwith %}
 
         {% block conteudo %}
-        <!-- O conteúdo da página será injetado aqui -->
         {% endblock %}
         </div>
     </main>

@@ -5,7 +5,14 @@
 {% endblock %}
 
 {% block conteudo %}
-    <h2>Explore e aproveite</h2>
+    <section class="search_produtos">
+        <input type="text" placeholder="Busque seu produto...">
+        <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search-icon">
+    </section>
+    <div class="title_produtos">
+        <h2 style="margin: 10px 0;">Explore e aproveite</h2>
+        <img src="{{ url_for('static', filename='images/buy2.png') }}" alt="buy icon" style="width: 40px;">
+    </div>
     <section id="produtos">
         {% for item in itens %}
             <article class="produto">

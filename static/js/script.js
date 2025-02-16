@@ -9,6 +9,10 @@ function verificarSenhas() {
         return true;
     }
 
+document.getElementById('menu-toggle').addEventListener('click', function() {
+        const menu = document.getElementById('menu');
+        menu.classList.toggle('show');
+    });
 
 
 window.addEventListener('DOMContentLoaded', function () {
@@ -44,26 +48,16 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-
 function formatarPreco(input) {
-        let valor = input.value.replace(/\D/g, ""); // Remove tudo que não for número
+        let valor = input.value.replace(/\D/g, "");
         if (valor.length === 0) {
-            input.value = ""; // Se estiver vazio, limpa o campo
+            input.value = "";
             return;
         }
-
-        valor = (parseFloat(valor) / 100).toFixed(2); // Divide por 100 para manter as casas decimais corretamente
-        valor = valor.replace(".", ","); // Converte para formato brasileiro
-
-        // Adiciona separadores de milhar
+        valor = (parseFloat(valor) / 100).toFixed(2);
+        valor = valor.replace(".", ",");
         valor = valor.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-        input.value = "R$ " + valor; // Adiciona o símbolo R$
+        input.value = "R$ " + valor;
     }
 
-document.getElementById("preco").addEventListener("input", function(e) {
-    let value = e.target.value.replace(/\D/g, ""); // Remove tudo que não for número
-    value = (value / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    e.target.value = value;
-});
 

@@ -6,7 +6,6 @@
 
 {% block conteudo %}
     <h2>Meus Anúncios</h2>
-
     {% if anuncios %}
         <table>
             <thead>
@@ -25,9 +24,13 @@
                     <td>{{ item[1] }}</td>
                     <td>{{ item[2][:50] }}...</td>
                     <td>R$ {{ "{:,.2f}".format(item[3]) }}</td>
-                    <td class="modif_anuncio">
-                        <a href="{{ url_for('editar_anuncio', anuncio_id=item[0]) }}" class="btn-edit">Editar</a>
-                        <a href="{{ url_for('remover_anuncio', anuncio_id=item[0]) }}" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir este anúncio?');">Remover</a>
+                    <td class="acoes">
+                        <a href="{{ url_for('editar_anuncio', anuncio_id=item[0]) }}" class="btn-edit">
+                            <img src="{{ url_for('static', filename='images/edit.png') }}" alt="Editar" style="width: 20px;">Editar
+                        </a>
+                        <a href="{{ url_for('remover_anuncio', anuncio_id=item[0]) }}" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir este anúncio?');">
+                            <img src="{{ url_for('static', filename='images/delete.png') }}" alt="Remover" style="width: 20px;">Remover
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
