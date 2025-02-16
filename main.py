@@ -41,12 +41,11 @@ def page_sobre():
 def create():
     if request.method == 'POST':
         name = request.form['name']
-        username = request.form['username']  # Captura o username
+        username = request.form['username']
         email = request.form['email']
         telephone = request.form['telephone']
         password = request.form['password']
 
-        # Verificar se o e-mail ou o username já estão registrados no banco de dados
         conn = mysql.connection
         cursor = conn.cursor()
 
@@ -55,24 +54,20 @@ def create():
 
         if existing_user:
             cursor.close()
-            # Passando a variável erro_email para destacar o campo de e-mail
             return render_template('cadastro.html',
                                    mensagem="Este e-mail já está registrado. Tente outro.",
                                    erro_email=True)
 
-        # Verificar se o username já está em uso
         cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
         existing_username = cursor.fetchone()
 
         if existing_username:
             cursor.close()
-            # Passando a variável erro_username para destacar o campo de username
             return render_template('cadastro.html',
                                    mensagem="Este nome de usuário já está em uso. Escolha outro.",
                                    erro_username=True)
 
-        # Se o e-mail e o username não existirem, faz o cadastro
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')  # Gera o hash seguro
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         cursor.execute("INSERT INTO users (name, username, email, telephone, password) VALUES (%s, %s, %s, %s, %s)",
                        (name, username, email, telephone, hashed_password))
@@ -80,7 +75,6 @@ def create():
         conn.commit()
         cursor.close()
 
-        # Após o cadastro, realiza o login do usuário automaticamente
         cursor = conn.cursor()
         cursor.execute("SELECT id, name FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
@@ -162,13 +156,11 @@ def like(produto_id):
     conn = mysql.connection
     cursor = conn.cursor()
 
-    # Verifica se o usuário já votou
     cursor.execute("SELECT tipo FROM likes WHERE user_id = %s AND produto_id = %s", (user_id, produto_id))
     voto_existente = cursor.fetchone()
 
     if voto_existente:
         if voto_existente[0] != 'like':
-            # Se o usuário deu dislike antes, troca para like
             cursor.execute("UPDATE likes SET tipo = 'like' WHERE user_id = %s AND produto_id = %s",
                            (user_id, produto_id))
             conn.commit()
@@ -189,7 +181,6 @@ def dislike(produto_id):
     conn = mysql.connection
     cursor = conn.cursor()
 
-    # Verifica se o usuário já votou
     cursor.execute("SELECT tipo FROM likes WHERE user_id = %s AND produto_id = %s", (user_id, produto_id))
     voto_existente = cursor.fetchone()
 
@@ -206,6 +197,28 @@ def dislike(produto_id):
 
     cursor.close()
     return redirect(url_for('page_produto'))
+
+@app.route('/<username>/<produto_name>')
+def produto(produto_name, username):
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT u.id, u.name, u.username, p.id, p.nome_produto, p.descricao, p.preco, p.imagem
+        FROM users u
+        JOIN produtos p ON u.id = p.user_id
+        WHERE u.username = %s AND p.nome_produto = %s
+    """, (username, produto_name))
+
+    produto_info = cursor.fetchone()
+    cursor.close()
+
+    if produto_info:
+        user_id, name, user_name,  produto_id, produto_nome, descricao, preco, imagem = produto_info
+        image_path = imagem.replace("static/", "")
+        return render_template('produto_info.html', produto_id=produto_id, produto_name=produto_nome, descricao=descricao, name=name, user_name=user_name, preco=preco, image_path=image_path)
+    else:
+        return 'pagina nano ecntrdkmskn'
 
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -234,21 +247,18 @@ def dashboard():
 
         cursor = conn.cursor()
 
-        # Verificar se o e-mail já está em uso por outro usuário
         cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
         existing_email = cursor.fetchone()
         if existing_email:
             erro_email = True
             mensagem = "Este e-mail já está registrado. Tente outro."
 
-        # Verificar se o telefone já está em uso por outro usuário
         cursor.execute("SELECT id FROM users WHERE telephone = %s AND id != %s", (telephone, user_id))
         existing_telephone = cursor.fetchone()
         if existing_telephone:
             erro_telefone = True
             mensagem = "Este telefone já está registrado. Tente outro."
 
-        # Verificar se o username já está em uso por outro usuário
         cursor.execute("SELECT id FROM users WHERE username = %s AND id != %s", (username, user_id))
         existing_username = cursor.fetchone()
         if existing_username:
@@ -285,15 +295,12 @@ def vender_produto():
         preco = request.form['preco']
         imagem = request.files['imagem']
 
-        # Convertendo o preço para um formato aceito pelo MySQL
         preco = re.sub(r'[^\d,]', '', preco)  # Remove "R$" e caracteres inválidos
         preco = preco.replace(',', '.')  # Substitui a vírgula por ponto
 
-        # Salvar imagem no diretório 'static/uploads'
         imagem_path = os.path.join('static', 'uploads', imagem.filename)
         imagem.save(imagem_path)
 
-        # Inserir produto no banco de dados
         conn = mysql.connection
         cursor = conn.cursor()
         cursor.execute("""
@@ -368,6 +375,23 @@ def remover_anuncio(anuncio_id):
     cursor.close()
 
     return redirect(url_for('anuncios'))
+
+@app.route('/<username>')
+def page_perfil(username):
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    # Buscar usuário pelo username
+    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE username = %s", (username,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    # Se o usuário não existir, retorna erro 404
+    if not user:
+        return 'USER NAO ENCONTRADO'
+
+    return render_template('perfil.html', user=user)
+
 
 
 

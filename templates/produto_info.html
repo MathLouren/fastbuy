@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    FastBuy - {{ produto_name }} | Compre agora o {{ produto_name }} por {{ preco }}
+{% endblock %}
+
+{% block meta_descricao %}
+    <meta name="description" content="Compre o {{ produto_name }} na FastBuy. {{ descricao }}. Preço: {{ preco }}. Entrega rápida e garantida.">
+{% endblock %}
+
+{% block conteudo %}
+<section id="produtos" itemscope itemtype="http://schema.org/Product" class="produto-detalhes">
+    <div class="produto-imagem">
+        <img src="{{ url_for('static', filename=image_path) }}" alt="{{ produto_name }} - {{ descricao }}" itemprop="image" class="imagem-produto">
+    </div>
+    <div class="produto-info">
+        <h1 itemprop="name">{{ produto_name }}</h1>
+        <p itemprop="description" class="descricao">{{ descricao }}</p>
+        <p class="vendedor">Vendido por: <span itemprop="seller">
+            <a href="{{ url_for('page_perfil', username=user_name) }}" style="color:#333">{{ name }}</a></span></p>
+        <p class="preco"><span itemprop="price" content="{{ preco }}">R$ {{ "{:,.2f}".format(preco) }}</span></p>
+        <button class="btn-comprar" onclick="adicionarAoCarrinho()">Comprar Agora</button>
+    </div>
+</section>
+{% endblock %}

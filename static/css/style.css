@@ -716,8 +716,9 @@ margin: auto;
     margin: 5px 0;
 }
 
-.produto_info .vendedor{
+.produto_info .vendedor a{
     font-size: 1rem;
+    color: #555 !important;
 }
 
 .likes-dislikes {
@@ -767,4 +768,158 @@ margin: auto;
 
 .input-error {
     border: 2px solid red;
+}
+
+.profile{
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile_header{
+    display:flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.3s ease-in-out;
+    margin: 5px 0 15px 0;
+    cursor: pointer;
+ }
+.profile-img:hover {
+    transform: scale(1.2);
+}
+
+.profile_desc{
+    width: 100%;
+    max-width: 800px;
+}
+
+.reviews{
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.reviews span{
+
+}
+
+.name{
+    font-size: 1.4rem;
+}
+
+.rating_stars {
+    font-size: 30px;
+    color: #ccc;
+    display: flex;
+    gap: 5px;
+}
+
+.star {
+    font-size: 30px;
+}
+
+.filled {
+    color: gold;
+}
+
+.partial {
+    position: relative;
+    display: inline-block;
+    color: #ccc;
+}
+
+.partial::before {
+    content: "★";
+    color: gold;
+    position: absolute;
+    width: var(--percent);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.profile_info{
+    display:flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.off::before{
+    content: "★";
+    color: #ccc;
+    position: absolute;
+    width: var(--percent);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.produto-detalhes {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.produto-imagem img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.produto-info {
+    flex: 1;
+}
+
+.produto-info h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.produto-info .descricao {
+    font-size: 1.2rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.produto-info .vendedor {
+    font-size: 1rem;
+    color: #777;
+    margin-bottom: 1rem;
+}
+
+.produto-info .preco {
+    font-size: 2rem;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 2rem;
+}
+
+.btn-comprar {
+    background-color: #333;
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-comprar:hover {
+    background-color: #d35400;
 }

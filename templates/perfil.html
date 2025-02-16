@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block titulo %}
+    {{user[1]}} - FastBuy
+{% endblock %}
+
+{% block conteudo %}
+<section class="profile">
+    <div class="profile_header">
+        <div class="pic_profile">
+            <img src="{{ url_for('static', filename='images/profile.jpg') }}"
+             alt="profile image"
+             class="profile-img">
+        </div>
+        <div class="reviews">
+            {% set rating = 4.8 %}
+            <span>{{ rating }}</span>
+            <div class="rating_stars">
+                {% for i in range(1, 6) %}
+                    {% if i <= rating %}
+                        <span class="star filled">★</span>
+                    {% elif i - 1 < rating < i %}
+                        <span class="star partial" style="--percent: {{ (rating - (i - 1)) * 100 }}%;">★</span>
+                    {% else %}
+                        <span class="star off">☆</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="profile_info">
+        <span class="name">{{user[1]}}</span>
+        <span>@{{user[4]}}</span>
+    </div>
+
+    <div class="profile_desc">
+        <p>Apaixonado por tecnologia, automação e inovação. Estudante de Sistemas de Informação (5º período), com experiência em Python, Java, MySQL, HTML, CSS e JavaScript (Vue.js).</p>
+    </div>
+</section>
+
+
+{% endblock %}

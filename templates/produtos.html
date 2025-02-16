@@ -16,14 +16,22 @@
     <section id="produtos">
         {% for item in itens %}
             <article class="produto">
-                <div class="produto_top">
-                    <h2>{{ item[1] }}</h2>
-                    <img src="{{ item[4] }}" alt="{{ item[1] }}" />
-                </div>
-                <div class="produto_info">
-                    <p class="preco">R$ {{ "{:,.2f}".format(item[3]) }}</p>
-                    <p class="vendedor"><strong>Vendedor:</strong> {{ item[5] }}</p>
-                </div>
+                <a href="{{ url_for('produto', produto_name=item[1], username=item[5]) }}">
+                    <div class="produto_top">
+                        <h2>{{ item[1] }}</h2>
+                        <img src="{{ item[4] }}" alt="{{ item[1] }}" />
+                    </div>
+                    <div class="produto_info">
+                        <p class="preco">R$ {{ "{:,.2f}".format(item[3]) }}</p>
+                        <p class="vendedor"><strong>Vendedor:</strong>
+                            {% if item[5] %}
+                                <a href="{{ url_for('page_perfil', username=item[5]) }}">{{ item[5] }}</a>
+                            {% else %}
+                                <span>Sem vendedor</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </a>
                 <div class="likes-dislikes">
                     <form action="{{ url_for('like', produto_id=item[0]) }}" method="post">
                         <button type="submit">👍 {{ item[6] }}</button>
