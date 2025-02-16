@@ -5,16 +5,19 @@
 {% endblock %}
 
 {% block conteudo %}
-    <h2>Lista de Produtos</h2>
+    <h2>Explore e aproveite</h2>
     <section id="produtos">
         {% for item in itens %}
             <article class="produto">
-                <h2>{{ item[1] }}</h2>
-                <img src="{{ item[4] }}" alt="{{ item[1] }}" />
-                <p><strong>Preço:</strong> R$ {{ "{:,.2f}".format(item[3]) }}</p>
-                <p>{{ item[2] }}</p>
-                <p><strong>Vendedor:</strong> {{ item[5] }}</p>
-
+                <div class="produto_top">
+                    <h2>{{ item[1] }}</h2>
+                    <img src="{{ item[4] }}" alt="{{ item[1] }}" />
+                </div>
+                <div class="produto_info">
+                    <p><strong>Preço:</strong> R$ {{ "{:,.2f}".format(item[3]) }}</p>
+                    <p class="desc_produto">{{ item[2] }}</p>
+                    <p><strong>Vendedor:</strong> {{ item[5] }}</p>
+                </div>
                 <div class="likes-dislikes">
                     <form action="{{ url_for('like', produto_id=item[0]) }}" method="post">
                         <button type="submit">👍 {{ item[6] }}</button>

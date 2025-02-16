@@ -570,8 +570,17 @@ margin: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 15px;
     text-align: center;
-    max-width: 300px; /* Tamanho máximo */
+    width:100%;
+    max-width: 300px;
+    height: 100%;
+    max-height: 600px;
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.desc_produto{
+    text-overflow: ellipsis;
 }
 
 .produto img {
@@ -616,4 +625,20 @@ margin: auto;
 
 .likes-dislikes button:nth-child(2) {
     color: red;
+}
+
+.create-account{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-delete{
+    color:red;
+}
+
+.btn-edit{
+    color:#333;
 }

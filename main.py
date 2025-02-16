@@ -217,61 +217,62 @@ def dashboard():
     conn = mysql.connection
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, name, email, telephone FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
 
-    mensagem = None  # Variável para a mensagem
-    erro_email = False  # Variável para indicar erro no e-mail
-    erro_telefone = False  # Variável para indicar erro no telefone
+    mensagem = None
+    erro_email = False
+    erro_telefone = False
+    erro_username = False
 
     if request.method == 'POST':
-        # Captura os novos valores do formulário
         name = request.form['name']
         email = request.form['email']
         telephone = request.form['telephone']
+        username = request.form['username']
 
-        # Verificar se o e-mail já está registrado, excluindo o e-mail do usuário atual
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
-        existing_user = cursor.fetchone()
 
-        if existing_user:
+        # Verificar se o e-mail já está em uso por outro usuário
+        cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
+        existing_email = cursor.fetchone()
+        if existing_email:
             erro_email = True
             mensagem = "Este e-mail já está registrado. Tente outro."
 
-        # Verificar se o telefone já está registrado, excluindo o telefone do usuário atual
+        # Verificar se o telefone já está em uso por outro usuário
         cursor.execute("SELECT id FROM users WHERE telephone = %s AND id != %s", (telephone, user_id))
         existing_telephone = cursor.fetchone()
-
         if existing_telephone:
             erro_telefone = True
             mensagem = "Este telefone já está registrado. Tente outro."
 
-        # Se não houver erros, faz a atualização dos dados
-        if not erro_email and not erro_telefone:
-            cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s WHERE id = %s",
-                           (name, email, telephone, user_id))
+        # Verificar se o username já está em uso por outro usuário
+        cursor.execute("SELECT id FROM users WHERE username = %s AND id != %s", (username, user_id))
+        existing_username = cursor.fetchone()
+        if existing_username:
+            erro_username = True
+            mensagem = "Este username já está em uso. Escolha outro."
+
+        # Se não houver erros, atualiza os dados do usuário
+        if not erro_email and not erro_telefone and not erro_username:
+            cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s, username = %s WHERE id = %s",
+                           (name, email, telephone, username, user_id))
             conn.commit()
             cursor.close()
 
-            # Defina a mensagem que será exibida após o sucesso
-            mensagem = "Informações atualizadas com sucesso!"
-
-            # Atualiza os dados na sessão
             session['user_name'] = name
 
-            # Recarrega os dados mais recentes do banco de dados após a atualização
+            mensagem = "Informações atualizadas com sucesso!"
+
+            # Recarregar os dados do usuário
             cursor = conn.cursor()
-            cursor.execute("SELECT id, name, email, telephone FROM users WHERE id = %s", (user_id,))
-            user = cursor.fetchone()  # Recarrega os dados do banco
+            cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
+            user = cursor.fetchone()
             cursor.close()
 
-    return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone)
-
-
-
-
+    return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone, erro_username=erro_username)
 
 @app.route('/vender', methods=['GET', 'POST'])
 def vender_produto():
@@ -322,44 +323,52 @@ def anuncios():
     conn = mysql.connection
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id, nome_produto, descricao, preco, imagem, user_id, likes, dislikes FROM produtos WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
+    cursor.execute("SELECT id, nome_produto, descricao, preco, imagem, likes, dislikes FROM produtos WHERE user_id = %s", (user_id,))
+    anuncios = cursor.fetchall()  # Pega todos os anúncios do usuário
     cursor.close()
 
-    mensagem = None
-    erro_email = False
-    erro_telefone = False
+    return render_template('anuncios.html', anuncios=anuncios)
 
-    if request.method == 'GET':
+@app.route('/editar_anuncio/<int:anuncio_id>', methods=['GET', 'POST'])
+def editar_anuncio(anuncio_id):
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    # Buscar os dados do anúncio
+    cursor.execute("SELECT id, nome_produto, descricao, preco FROM produtos WHERE id = %s", (anuncio_id,))
+    anuncio = cursor.fetchone()
+
+    if request.method == 'POST':
         nome_produto = request.form['nome_produto']
         descricao = request.form['descricao']
         preco = request.form['preco']
-        imagem = request.form['imagem']
-        user_id = request.form['user_id']
-        likes = request.form['likes']
-        dislikes = request.form['dislikes']
 
-    return render_template('anuncios.html', nome_produto=nome_produto, descricao=descricao)
+        cursor.execute("UPDATE produtos SET nome_produto = %s, descricao = %s, preco = %s WHERE id = %s",
+                       (nome_produto, descricao, preco, anuncio_id))
+        conn.commit()
+        cursor.close()
 
-    #     if not erro_email and not erro_telefone:
-    #         cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s WHERE id = %s",
-    #                        (name, email, telephone, user_id))
-    #         conn.commit()
-    #         cursor.close()
-    #
-    #         # Defina a mensagem que será exibida após o sucesso
-    #         mensagem = "Informações atualizadas com sucesso!"
-    #
-    #         # Atualiza os dados na sessão
-    #         session['user_name'] = name
-    #
-    #         # Recarrega os dados mais recentes do banco de dados após a atualização
-    #         cursor = conn.cursor()
-    #         cursor.execute("SELECT id, name, email, telephone FROM users WHERE id = %s", (user_id,))
-    #         user = cursor.fetchone()  # Recarrega os dados do banco
-    #         cursor.close()
-    #
-    # return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone)
+        return redirect(url_for('anuncios'))
+
+    return render_template('editar_anuncio.html', anuncio=anuncio)
+
+@app.route('/remover_anuncio/<int:anuncio_id>')
+def remover_anuncio(anuncio_id):
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM produtos WHERE id = %s", (anuncio_id,))
+    conn.commit()
+    cursor.close()
+
+    return redirect(url_for('anuncios'))
+
 
 
 if __name__ == '__main__':

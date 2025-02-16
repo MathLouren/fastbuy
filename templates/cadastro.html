@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block titulo %}
-    Cadastrar - FastBuy
+    Crie sua conta - FastBuy
 {% endblock %}
 
 {% block conteudo %}
@@ -28,7 +28,6 @@
                 value="{{ request.form['name'] if request.form.get('name') else '' }}">
         </div>
 
-        <!-- Novo campo de username -->
         <div class="form-group">
             <label for="username">Nome de Usuário</label>
             <input

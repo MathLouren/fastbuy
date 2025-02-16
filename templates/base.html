@@ -16,7 +16,6 @@
 
                 {% if not session.get('logged_in') %}
                     <li><a href="{{ url_for('login') }}">Login</a></li>
-                    <li><a href="{{ url_for('form') }}">Cadastro</a></li>
                 {% else %}
                     <li>
                         <a href="{{ url_for('vender_produto') }}">

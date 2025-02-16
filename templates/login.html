@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block titulo %}
-    Entrar - FastBuy
+    Acesse usa conta - FastBuy
 {% endblock %}
 
 {% block conteudo %}
@@ -12,7 +12,7 @@
         </div>
     {% endif %}
     <div class="form-container">
-        <h2 style="margin-bottom: 20px;">Logue com sua conta</h2>
+        <h2 style="margin-bottom: 20px;">Entre com sua conta</h2>
         <form action="/login" method="POST" onsubmit="return verificarSenhas()">
             <div class="form-group">
                 <label for="email">Email</label>
@@ -26,5 +26,11 @@
                 <input type="submit" value="Entrar" class="btn-submit">
             </div>
         </form>
+        <div class="create-account">
+            <label for="cadastro">Novo Usuário?</label>
+            <a href="{{ url_for('form') }}">
+                <input type="submit" value="Crie sua conta" class="btn-submit" id="cadastro">
+            </a>
+        </div>
     </div>
 {% endblock %}

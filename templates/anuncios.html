@@ -1,11 +1,39 @@
 {% extends 'base.html' %}
 
 {% block titulo %}
-    Home - FastBuy
+    Meus Anúncios - FastBuy
 {% endblock %}
 
 {% block conteudo %}
-    {% for item in itens %}
-    <p>{{ item[1] }}</p>
-    {% endfor %}
+    <h2>Meus Anúncios</h2>
+
+    {% if anuncios %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>Produto</th>
+                    <th>Descrição</th>
+                    <th>Preço</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in anuncios %}
+                <tr>
+                    <td><img src="{{ item[4] }}" alt="{{ item[1] }}" style="width: 50px; height: 50px;"></td>
+                    <td>{{ item[1] }}</td>
+                    <td>{{ item[2][:50] }}...</td>
+                    <td>R$ {{ "{:,.2f}".format(item[3]) }}</td>
+                    <td class="modif_anuncio">
+                        <a href="{{ url_for('editar_anuncio', anuncio_id=item[0]) }}" class="btn-edit">Editar</a>
+                        <a href="{{ url_for('remover_anuncio', anuncio_id=item[0]) }}" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir este anúncio?');">Remover</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Você ainda não tem anúncios.</p>
+    {% endif %}
 {% endblock %}
