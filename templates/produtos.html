@@ -21,9 +21,8 @@
                     <img src="{{ item[4] }}" alt="{{ item[1] }}" />
                 </div>
                 <div class="produto_info">
-                    <p><strong>Preço:</strong> R$ {{ "{:,.2f}".format(item[3]) }}</p>
-                    <p class="desc_produto">{{ item[2] }}</p>
-                    <p><strong>Vendedor:</strong> {{ item[5] }}</p>
+                    <p class="preco">R$ {{ "{:,.2f}".format(item[3]) }}</p>
+                    <p class="vendedor"><strong>Vendedor:</strong> {{ item[5] }}</p>
                 </div>
                 <div class="likes-dislikes">
                     <form action="{{ url_for('like', produto_id=item[0]) }}" method="post">
