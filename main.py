@@ -3,30 +3,42 @@ from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 import os
 import re
-import os
 from werkzeug.utils import secure_filename
 
-
-
 app = Flask(__name__)
-
 
 # Configuração do MySQL
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = '123456'
 app.config['MYSQL_DB'] = 'e_commerce'
-
-app.secret_key = 'jrirj39u434394939493'  # Chave para gerenciar sessões
+app.secret_key = 'jrirj39u434394939493'
 
 mysql = MySQL(app)
-bcrypt = Bcrypt(app)  # Inicializa o Flask-Bcrypt
+bcrypt = Bcrypt(app)
 
+# Constantes
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+UPLOAD_FOLDER = 'static/uploads'
+
+def get_db_cursor():
+    conn = mysql.connection
+    return conn.cursor()
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_file(file):
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+        return file_path
+    return None
 
 @app.route('/')
 def page_home():
     return redirect(url_for('page_produto'))
-
 
 @app.route('/cadastro')
 def form():
@@ -35,7 +47,6 @@ def form():
 @app.route('/sobre')
 def page_sobre():
     return render_template('sobre.html')
-
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -46,50 +57,35 @@ def create():
         telephone = request.form['telephone']
         password = request.form['password']
 
-        conn = mysql.connection
-        cursor = conn.cursor()
+        cursor = get_db_cursor()
 
-        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id FROM users WHERE email = %s OR username = %s", (email, username))
         existing_user = cursor.fetchone()
 
         if existing_user:
             cursor.close()
             return render_template('cadastro.html',
-                                   mensagem="Este e-mail já está registrado. Tente outro.",
+                                   mensagem="Este e-mail ou nome de usuário já está registrado. Tente outro.",
                                    erro_email=True)
-
-        cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
-        existing_username = cursor.fetchone()
-
-        if existing_username:
-            cursor.close()
-            return render_template('cadastro.html',
-                                   mensagem="Este nome de usuário já está em uso. Escolha outro.",
-                                   erro_username=True)
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
 
         cursor.execute("INSERT INTO users (name, username, email, telephone, password) VALUES (%s, %s, %s, %s, %s)",
                        (name, username, email, telephone, hashed_password))
 
-        conn.commit()
+        mysql.connection.commit()
         cursor.close()
 
-        cursor = conn.cursor()
+        cursor = get_db_cursor()
         cursor.execute("SELECT id, name FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
 
-        # Criar a sessão para o usuário logado
         session['logged_in'] = True
         session['user_id'] = user[0]
         session['user_name'] = user[1]
 
-        # Redirecionar para o dashboard
         return redirect(url_for('dashboard'))
-
-
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -97,39 +93,28 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        conn = mysql.connection
-        cursor = conn.cursor()
-
+        cursor = get_db_cursor()
         cursor.execute("SELECT id, password, username, name FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
 
-        if user and bcrypt.check_password_hash(user[1], password):  # Usa a função correta
+        if user and bcrypt.check_password_hash(user[1], password):
             session['logged_in'] = True
             session['user_id'] = user[0]
-            mensagem = "Login realizado com sucesso!"
-            return redirect(url_for('page_produto', mensagem=mensagem))
+            return redirect(url_for('page_produto'))
         else:
-            mensagem = "Email ou senha inválidos!"
-            return render_template('login.html', mensagem=mensagem)
+            return render_template('login.html', mensagem="Email ou senha inválidos!")
 
     return render_template('login.html')
 
-
 @app.route('/logout')
 def logout():
-    if 'logged_in' not in session:
-        return redirect(url_for('login'))
-    else:
-        session.clear()  # Limpa a sessão
-        return redirect(url_for('login'))
-
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/produtos')
 def page_produto():
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     query = """
         SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
         COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
@@ -139,13 +124,10 @@ def page_produto():
         LEFT JOIN likes l ON p.id = l.produto_id
         GROUP BY p.id
     """
-
     cursor.execute(query)
     itens = cursor.fetchall()
     cursor.close()
-
     return render_template("produtos.html", itens=itens)
-
 
 @app.route('/like/<int:produto_id>', methods=['POST'])
 def like(produto_id):
@@ -153,9 +135,7 @@ def like(produto_id):
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("SELECT tipo FROM likes WHERE user_id = %s AND produto_id = %s", (user_id, produto_id))
     voto_existente = cursor.fetchone()
 
@@ -163,14 +143,12 @@ def like(produto_id):
         if voto_existente[0] != 'like':
             cursor.execute("UPDATE likes SET tipo = 'like' WHERE user_id = %s AND produto_id = %s",
                            (user_id, produto_id))
-            conn.commit()
     else:
         cursor.execute("INSERT INTO likes (user_id, produto_id, tipo) VALUES (%s, %s, 'like')", (user_id, produto_id))
-        conn.commit()
 
+    mysql.connection.commit()
     cursor.close()
     return redirect(url_for('page_produto'))
-
 
 @app.route('/dislike/<int:produto_id>', methods=['POST'])
 def dislike(produto_id):
@@ -178,9 +156,7 @@ def dislike(produto_id):
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("SELECT tipo FROM likes WHERE user_id = %s AND produto_id = %s", (user_id, produto_id))
     voto_existente = cursor.fetchone()
 
@@ -188,21 +164,17 @@ def dislike(produto_id):
         if voto_existente[0] != 'dislike':
             cursor.execute("UPDATE likes SET tipo = 'dislike' WHERE user_id = %s AND produto_id = %s",
                            (user_id, produto_id))
-            conn.commit()
     else:
-        # Registra um novo dislike
         cursor.execute("INSERT INTO likes (user_id, produto_id, tipo) VALUES (%s, %s, 'dislike')",
                        (user_id, produto_id))
-        conn.commit()
 
+    mysql.connection.commit()
     cursor.close()
     return redirect(url_for('page_produto'))
 
 @app.route('/<username>/<produto_name>')
 def produto(produto_name, username):
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("""
         SELECT u.id, u.name, u.username, p.id, p.nome_produto, p.descricao, p.preco, p.imagem
         FROM users u
@@ -218,8 +190,7 @@ def produto(produto_name, username):
         image_path = imagem.replace("static/", "")
         return render_template('produto_info.html', produto_id=produto_id, produto_name=produto_nome, descricao=descricao, name=name, user_name=user_name, preco=preco, image_path=image_path)
     else:
-        return 'pagina nano ecntrdkmskn'
-
+        return 'Página não encontrada', 404
 
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
@@ -227,9 +198,7 @@ def dashboard():
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
@@ -245,42 +214,22 @@ def dashboard():
         telephone = request.form['telephone']
         username = request.form['username']
 
-        cursor = conn.cursor()
+        cursor = get_db_cursor()
+        cursor.execute("SELECT id FROM users WHERE (email = %s OR telephone = %s OR username = %s) AND id != %s",
+                       (email, telephone, username, user_id))
+        existing_user = cursor.fetchone()
 
-        cursor.execute("SELECT id FROM users WHERE email = %s AND id != %s", (email, user_id))
-        existing_email = cursor.fetchone()
-        if existing_email:
+        if existing_user:
             erro_email = True
-            mensagem = "Este e-mail já está registrado. Tente outro."
-
-        cursor.execute("SELECT id FROM users WHERE telephone = %s AND id != %s", (telephone, user_id))
-        existing_telephone = cursor.fetchone()
-        if existing_telephone:
-            erro_telefone = True
-            mensagem = "Este telefone já está registrado. Tente outro."
-
-        cursor.execute("SELECT id FROM users WHERE username = %s AND id != %s", (username, user_id))
-        existing_username = cursor.fetchone()
-        if existing_username:
-            erro_username = True
-            mensagem = "Este username já está em uso. Escolha outro."
-
-        # Se não houver erros, atualiza os dados do usuário
-        if not erro_email and not erro_telefone and not erro_username:
+            mensagem = "Este e-mail, telefone ou nome de usuário já está registrado. Tente outro."
+        else:
             cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s, username = %s WHERE id = %s",
                            (name, email, telephone, username, user_id))
-            conn.commit()
-            cursor.close()
-
+            mysql.connection.commit()
             session['user_name'] = name
-
             mensagem = "Informações atualizadas com sucesso!"
 
-            # Recarregar os dados do usuário
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
-            user = cursor.fetchone()
-            cursor.close()
+        cursor.close()
 
     return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone, erro_username=erro_username)
 
@@ -295,10 +244,12 @@ def vender_produto():
         preco = request.form['preco']
         imagem = request.files['imagem']
 
-        preco = re.sub(r'[^\d,]', '', preco)  # Remove "R$" e caracteres inválidos
-        preco = preco.replace(',', '.')  # Substitui a vírgula por ponto
+        preco_limpo = re.sub(r'[^\d,]', '', preco)  # Remove "R$" e caracteres inválidos
+        preco_limpo = preco_limpo.replace(',', '.')  # Substitui a vírgula por ponto
+        preco_float = float(preco_limpo)  # Converte para float
 
-        imagem_path = os.path.join('static', 'uploads', imagem.filename)
+        imagem_path = os.path.join('static', 'uploads', secure_filename(imagem.filename))
+        imagem_path = imagem_path.replace("\\", "/")  # Substitui barras invertidas por barras normais
         imagem.save(imagem_path)
 
         conn = mysql.connection
@@ -306,7 +257,7 @@ def vender_produto():
         cursor.execute("""
             INSERT INTO produtos (nome_produto, descricao, preco, imagem, user_id) 
             VALUES (%s, %s, %s, %s, %s)
-        """, (nome_produto, descricao, float(preco), imagem_path, session['user_id']))
+        """, (nome_produto, descricao, preco_float, imagem_path, session['user_id']))
 
         conn.commit()
         cursor.close()
@@ -315,25 +266,16 @@ def vender_produto():
 
     return render_template('vender.html')
 
-
-def allowed_file(filename):
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-
-@app.route('/anuncios', methods=['GET', 'POST'])
+@app.route('/anuncios')
 def anuncios():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
 
     user_id = session['user_id']
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("SELECT id, nome_produto, descricao, preco, imagem, likes, dislikes FROM produtos WHERE user_id = %s", (user_id,))
-    anuncios = cursor.fetchall()  # Pega todos os anúncios do usuário
+    anuncios = cursor.fetchall()
     cursor.close()
-
     return render_template('anuncios.html', anuncios=anuncios)
 
 @app.route('/editar_anuncio/<int:anuncio_id>', methods=['GET', 'POST'])
@@ -341,10 +283,7 @@ def editar_anuncio(anuncio_id):
     if 'logged_in' not in session:
         return redirect(url_for('login'))
 
-    conn = mysql.connection
-    cursor = conn.cursor()
-
-    # Buscar os dados do anúncio
+    cursor = get_db_cursor()
     cursor.execute("SELECT id, nome_produto, descricao, preco FROM produtos WHERE id = %s", (anuncio_id,))
     anuncio = cursor.fetchone()
 
@@ -352,12 +291,14 @@ def editar_anuncio(anuncio_id):
         nome_produto = request.form['nome_produto']
         descricao = request.form['descricao']
         preco = request.form['preco']
+        preco_limpo = re.sub(r'[^\d,]', '', preco)
+        preco_limpo = preco_limpo.replace(',', '.')
+        preco_float = float(preco_limpo)
 
         cursor.execute("UPDATE produtos SET nome_produto = %s, descricao = %s, preco = %s WHERE id = %s",
-                       (nome_produto, descricao, preco, anuncio_id))
-        conn.commit()
+                       (nome_produto, descricao, preco_float, anuncio_id))
+        mysql.connection.commit()
         cursor.close()
-
         return redirect(url_for('anuncios'))
 
     return render_template('editar_anuncio.html', anuncio=anuncio)
@@ -367,33 +308,23 @@ def remover_anuncio(anuncio_id):
     if 'logged_in' not in session:
         return redirect(url_for('login'))
 
-    conn = mysql.connection
-    cursor = conn.cursor()
-
+    cursor = get_db_cursor()
     cursor.execute("DELETE FROM produtos WHERE id = %s", (anuncio_id,))
-    conn.commit()
+    mysql.connection.commit()
     cursor.close()
-
     return redirect(url_for('anuncios'))
 
 @app.route('/<username>')
 def page_perfil(username):
-    conn = mysql.connection
-    cursor = conn.cursor()
-
-    # Buscar usuário pelo username
+    cursor = get_db_cursor()
     cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE username = %s", (username,))
     user = cursor.fetchone()
     cursor.close()
 
-    # Se o usuário não existir, retorna erro 404
-    if not user:
-        return 'USER NAO ENCONTRADO'
-
-    return render_template('perfil.html', user=user)
-
-
-
+    if user:
+        return render_template('perfil.html', user=user)
+    else:
+        return 'Página não encontrada', 404
 
 if __name__ == '__main__':
     app.run(debug=True)
