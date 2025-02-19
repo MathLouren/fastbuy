@@ -6,8 +6,12 @@
 
 {% block conteudo %}
     <section class="search_produtos">
-        <input type="text" placeholder="Busque seu produto...">
-        <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search-icon">
+        <form action="{{ url_for('buscar_produtos') }}" method="get">
+            <input type="text" name="q" placeholder="Busque seu produto..." value="{{ request.args.get('q', '') }}">
+            <button type="submit">
+                <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search-icon">
+            </button>
+        </form>
     </section>
     <div class="title_produtos">
         <h2 style="margin: 10px 0;">Explore e aproveite</h2>

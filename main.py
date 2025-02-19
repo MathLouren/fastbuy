@@ -114,17 +114,34 @@ def logout():
 
 @app.route('/produtos')
 def page_produto():
+    termo_busca = request.args.get('q', '').strip()  # Obtém o termo de busca da URL
+
     cursor = get_db_cursor()
-    query = """
-        SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
-        COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
-        COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
-        FROM produtos p
-        JOIN users u ON p.user_id = u.id
-        LEFT JOIN likes l ON p.id = l.produto_id
-        GROUP BY p.id
-    """
-    cursor.execute(query)
+
+    if termo_busca:
+        query = """
+            SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
+            COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
+            COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
+            FROM produtos p
+            JOIN users u ON p.user_id = u.id
+            LEFT JOIN likes l ON p.id = l.produto_id
+            WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s
+            GROUP BY p.id
+        """
+        cursor.execute(query, (f"%{termo_busca}%", f"%{termo_busca}%"))
+    else:
+        query = """
+            SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
+            COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
+            COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
+            FROM produtos p
+            JOIN users u ON p.user_id = u.id
+            LEFT JOIN likes l ON p.id = l.produto_id
+            GROUP BY p.id
+        """
+        cursor.execute(query)
+
     itens = cursor.fetchall()
     cursor.close()
     return render_template("produtos.html", itens=itens)
@@ -325,6 +342,28 @@ def page_perfil(username):
         return render_template('perfil.html', user=user)
     else:
         return 'Página não encontrada', 404
+
+@app.route('/buscar', methods=['GET'])
+def buscar_produtos():
+    termo_busca = request.args.get('q', '').strip()
+
+    cursor = get_db_cursor()
+
+    query = """
+        SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
+        COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
+        COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
+        FROM produtos p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN likes l ON p.id = l.produto_id
+        WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s
+        GROUP BY p.id
+    """
+    cursor.execute(query, (f"%{termo_busca}%", f"%{termo_busca}%"))
+    itens = cursor.fetchall()
+    cursor.close()
+
+    return render_template("produtos.html", itens=itens)
 
 if __name__ == '__main__':
     app.run(debug=True)
