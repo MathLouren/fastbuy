@@ -345,10 +345,16 @@ def page_perfil(username):
 
 @app.route('/buscar', methods=['GET'])
 def buscar_produtos():
+    # Obtém o termo de busca da URL
     termo_busca = request.args.get('q', '').strip()
+
+    # Remove caracteres especiais e divide o termo em palavras-chave
+    termo_busca = re.sub(r'[^\w\s]', '', termo_busca)  # Remove caracteres especiais
+    palavras_chave = termo_busca.lower().split()  # Divide em palavras e converte para minúsculas
 
     cursor = get_db_cursor()
 
+    # Consulta SQL para buscar produtos com base nas palavras-chave
     query = """
         SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
         COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
@@ -356,10 +362,19 @@ def buscar_produtos():
         FROM produtos p
         JOIN users u ON p.user_id = u.id
         LEFT JOIN likes l ON p.id = l.produto_id
-        WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s
+        WHERE {}
         GROUP BY p.id
     """
-    cursor.execute(query, (f"%{termo_busca}%", f"%{termo_busca}%"))
+    where_clause = " AND ".join(
+        ["LOWER(p.nome_produto) LIKE %s OR LOWER(p.descricao) LIKE %s" for _ in palavras_chave]
+    )
+    query = query.format(where_clause)
+
+    parametros = []
+    for palavra in palavras_chave:
+        parametros.extend([f"%{palavra}%", f"%{palavra}%"])
+
+    cursor.execute(query, parametros)
     itens = cursor.fetchall()
     cursor.close()
 
