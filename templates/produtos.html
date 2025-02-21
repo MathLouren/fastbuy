@@ -6,8 +6,8 @@
 
 {% block conteudo %}
     <section class="search_produtos">
-        <form action="{{ url_for('buscar_produtos') }}" method="get">
-            <input type="text" name="q" placeholder="Busque seu produto..." value="{{ request.args.get('q', '') }}">
+        <form action="{{ url_for('page_produto') }}" method="get">
+            <input type="text" name="q" placeholder="Busque seu produto..." value="{{ termo_busca }}">
             <button type="submit">
                 <img src="{{ url_for('static', filename='images/search.png') }}" alt="search" class="search-icon">
             </button>
@@ -51,19 +51,19 @@
     <!-- Controles de Paginação -->
     <div class="paginacao">
         {% if pagina > 1 %}
-            <a href="{{ url_for('page_produto', page=pagina-1) }}" class="botao-paginacao">Anterior</a>
+            <a href="{{ url_for('page_produto', page=pagina-1, q=termo_busca) }}" class="botao-paginacao">Anterior</a>
         {% endif %}
 
         {% for p in range(1, total_paginas + 1) %}
             {% if p == pagina %}
                 <span class="pagina-atual">{{ p }}</span>
             {% else %}
-                <a href="{{ url_for('page_produto', page=p) }}" class="botao-paginacao">{{ p }}</a>
+                <a href="{{ url_for('page_produto', page=p, q=termo_busca) }}" class="botao-paginacao">{{ p }}</a>
             {% endif %}
         {% endfor %}
 
         {% if pagina < total_paginas %}
-            <a href="{{ url_for('page_produto', page=pagina+1) }}" class="botao-paginacao">Próximo</a>
+            <a href="{{ url_for('page_produto', page=pagina+1, q=termo_busca) }}" class="botao-paginacao">Próximo</a>
         {% endif %}
     </div>
 {% endblock %}

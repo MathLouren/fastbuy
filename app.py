@@ -114,40 +114,51 @@ def logout():
 
 @app.route('/produtos')
 def page_produto():
-    # Obtém o número da página da URL (padrão: 1)
+    termo_busca = request.args.get('q', '').strip()
     pagina = request.args.get('page', 1, type=int)
-
-    # Define a quantidade de produtos por página
-    produtos_por_pagina = 8  # Altere conforme necessário
-
-    # Calcula o offset (deslocamento) para a consulta SQL
+    produtos_por_pagina = 8
     offset = (pagina - 1) * produtos_por_pagina
 
     cursor = get_db_cursor()
 
-    # Consulta SQL para buscar produtos com paginação
-    query = """
+    query_base = """
         SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
         COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
         COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
         FROM produtos p
         JOIN users u ON p.user_id = u.id
         LEFT JOIN likes l ON p.id = l.produto_id
-        GROUP BY p.id
-        LIMIT %s OFFSET %s
     """
-    cursor.execute(query, (produtos_por_pagina, offset))
+
+    if termo_busca:
+        query_base += " WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s"
+        parametros = (f"%{termo_busca}%", f"%{termo_busca}%")
+    else:
+        parametros = ()
+
+    query = query_base + " GROUP BY p.id LIMIT %s OFFSET %s"
+    cursor.execute(query, parametros + (produtos_por_pagina, offset))
     itens = cursor.fetchall()
 
-    # Conta o total de produtos para calcular o número total de páginas
-    cursor.execute("SELECT COUNT(*) FROM produtos")
+    count_query = "SELECT COUNT(*) FROM produtos p"
+    if termo_busca:
+        count_query += " WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s"
+        cursor.execute(count_query, (f"%{termo_busca}%", f"%{termo_busca}%"))
+    else:
+        cursor.execute(count_query)
+
     total_produtos = cursor.fetchone()[0]
     cursor.close()
 
-    # Calcula o número total de páginas
     total_paginas = (total_produtos + produtos_por_pagina - 1) // produtos_por_pagina
 
-    return render_template("produtos.html", itens=itens, pagina=pagina, total_paginas=total_paginas)
+    return render_template(
+        "produtos.html",
+        itens=itens,
+        pagina=pagina,
+        total_paginas=total_paginas,
+        termo_busca=termo_busca  # Passa o termo de busca para o template
+    )
 
 @app.route('/like/<int:produto_id>', methods=['POST'])
 def like(produto_id):
