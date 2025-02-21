@@ -269,33 +269,62 @@ def vender_produto():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
 
+    mensagem = None
+    erro = None
+
     if request.method == 'POST':
-        nome_produto = request.form['nome_produto']
-        descricao = request.form['descricao']
-        preco = request.form['preco']
-        imagem = request.files['imagem']
+        try:
+            # Obtém os dados do formulário
+            nome_produto = request.form['nome_produto']
+            descricao = request.form['descricao']
+            preco = request.form['preco']
+            imagem = request.files['imagem']
 
-        preco_limpo = re.sub(r'[^\d,]', '', preco)  # Remove "R$" e caracteres inválidos
-        preco_limpo = preco_limpo.replace(',', '.')  # Substitui a vírgula por ponto
-        preco_float = float(preco_limpo)  # Converte para float
+            # Validação do nome do produto
+            if len(nome_produto) > 100:  # Supondo que a coluna 'nome_produto' tenha limite de 100 caracteres
+                raise ValueError("O nome do produto deve ter no máximo 100 caracteres.")
 
-        imagem_path = os.path.join('static', 'uploads', secure_filename(imagem.filename))
-        imagem_path = imagem_path.replace("\\", "/")  # Substitui barras invertidas por barras normais
-        imagem.save(imagem_path)
+            # Validação da descrição
+            if len(descricao) > 1500:  # Supondo que a coluna 'descricao' tenha limite de 1500 caracteres
+                raise ValueError("A descrição deve ter no máximo 1500 caracteres.")
 
-        conn = mysql.connection
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO produtos (nome_produto, descricao, preco, imagem, user_id) 
-            VALUES (%s, %s, %s, %s, %s)
-        """, (nome_produto, descricao, preco_float, imagem_path, session['user_id']))
+            # Validação do preço
+            preco_limpo = re.sub(r'[^\d,]', '', preco)  # Remove "R$" e caracteres inválidos
+            preco_limpo = preco_limpo.replace(',', '.')  # Substitui a vírgula por ponto
+            preco_float = float(preco_limpo)  # Converte para float
 
-        conn.commit()
-        cursor.close()
+            if preco_float <= 0:
+                raise ValueError("O preço deve ser maior que zero.")
 
-        return render_template('vender.html', mensagem="Produto anunciado com sucesso!")
+            # Validação da imagem
+            if not allowed_file(imagem.filename):
+                raise ValueError("Formato de arquivo não suportado. Use apenas PNG, JPG ou JPEG.")
 
-    return render_template('vender.html')
+            # Salva a imagem
+            imagem_path = os.path.join('static', 'uploads', secure_filename(imagem.filename))
+            imagem_path = imagem_path.replace("\\", "/")  # Substitui barras invertidas por barras normais
+            imagem.save(imagem_path)
+
+            # Insere os dados no banco de dados
+            conn = mysql.connection
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO produtos (nome_produto, descricao, preco, imagem, user_id) 
+                VALUES (%s, %s, %s, %s, %s)
+            """, (nome_produto, descricao, preco_float, imagem_path, session['user_id']))
+
+            conn.commit()
+            cursor.close()
+
+            mensagem = "Produto anunciado com sucesso!"
+            return render_template('vender.html', mensagem=mensagem, erro=None)
+
+        except ValueError as e:
+            erro = str(e)
+        except Exception as e:
+            erro = f"Erro ao anunciar o produto: {str(e)}"
+
+    return render_template('vender.html', mensagem=mensagem, erro=erro)
 
 @app.route('/anuncios')
 def anuncios():
