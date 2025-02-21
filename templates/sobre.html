@@ -6,14 +6,40 @@
 
 {% block conteudo %}
 <section class="about-container">
-    <h2>Sobre o Site</h2>
-    <p>Este site foi desenvolvido por <strong>Matheus Lourenço da Silva</strong>, como parte de um projeto de estudo e treinamento. O objetivo deste projeto é aprimorar minhas habilidades em desenvolvimento web, incluindo o uso de Flask, HTML, CSS e outras tecnologias.</p>
+    <h2 class="about-title">Sobre o Site</h2>
+    <p class="about-text">Este site foi desenvolvido por <strong>Matheus Lourenço da Silva</strong>, como parte de um projeto de estudo e treinamento. O objetivo deste projeto é aprimorar minhas habilidades em desenvolvimento web, incluindo o uso de Flask, HTML, CSS e outras tecnologias.</p>
 
-    <p>O site não tem fins lucrativos e foi criado exclusivamente para fins educacionais, visando colocar em prática o conhecimento adquirido durante meus estudos. Todos os recursos aqui presentes são de caráter demonstrativo.</p>
+    <p class="about-text"><b>O site não tem fins lucrativos e foi criado exclusivamente para fins educacionais</b>, visando colocar em prática o conhecimento adquirido durante meus estudos. Todos os recursos aqui presentes são de caráter demonstrativo.</p>
 
-    <p>Se você estiver interessado em saber mais sobre o meu trabalho ou em discutir projetos de desenvolvimento, sinta-se à vontade para entrar em contato!</p>
+    <p class="about-text">Se você estiver interessado em saber mais sobre o meu trabalho ou em discutir projetos de desenvolvimento, sinta-se à vontade para entrar em contato!</p>
 
-    <p><strong>Agradeço por visitar e explorar o site!</strong></p>
+    <div class="contact-info">
+        <h3 class="contact-title">Informações de Contato</h3>
+        <ul class="contact-list">
+            <li class="contact-item">
+                <img src="{{ url_for('static', filename='images/github.png') }}" alt="GitHub" class="contact-icon">
+                <strong>GitHub:</strong>
+                <a href="https://github.com/MathLouren" target="_blank" class="contact-link">
+                    https://github.com/MathLouren
+                </a>
+            </li>
+            <li class="contact-item">
+                <img src="{{ url_for('static', filename='images/cell-phone.png') }}" alt="Telefone" class="contact-icon">
+                <strong>Telefone:</strong>
+                <a href="tel:+5521998196861" class="contact-link">
+                    +55 (21) 99819-6861
+                </a>
+            </li>
+            <li class="contact-item">
+                <img src="{{ url_for('static', filename='images/email.png') }}" alt="E-mail" class="contact-icon">
+                <strong>E-mail:</strong>
+                <a href="mailto:lourencomatheus487@gmail.com" class="contact-link">
+                    lourencomatheus487@gmail.com
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <p class="about-text"><strong>Agradeço por visitar e explorar o site!</strong></p>
 </section>
-
 {% endblock %}

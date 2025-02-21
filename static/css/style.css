@@ -947,3 +947,54 @@ margin: auto;
     color: white;
     border-color: #007bff;
 }
+
+..about-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.contact-info {
+    margin-top: 20px;
+    text-align: left;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contact-info h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.contact-info ul {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-direction:column;
+    align-items: flex-start;
+}
+
+.contact-info li {
+    margin: 10px 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.contact-info img{
+    width: 25px;
+}
+
+.contact-info a, .contact-info strong {
+    color: #007bff !important;
+    text-decoration: none;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+}

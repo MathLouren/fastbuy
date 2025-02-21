@@ -48,7 +48,6 @@
         {% endfor %}
     </section>
 
-    <!-- Controles de Paginação -->
     <div class="paginacao">
         {% if pagina > 1 %}
             <a href="{{ url_for('page_produto', page=pagina-1, q=termo_busca) }}" class="botao-paginacao">Anterior</a>
