@@ -114,37 +114,40 @@ def logout():
 
 @app.route('/produtos')
 def page_produto():
-    termo_busca = request.args.get('q', '').strip()  # Obtém o termo de busca da URL
+    # Obtém o número da página da URL (padrão: 1)
+    pagina = request.args.get('page', 1, type=int)
+
+    # Define a quantidade de produtos por página
+    produtos_por_pagina = 8  # Altere conforme necessário
+
+    # Calcula o offset (deslocamento) para a consulta SQL
+    offset = (pagina - 1) * produtos_por_pagina
 
     cursor = get_db_cursor()
 
-    if termo_busca:
-        query = """
-            SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
-            COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
-            COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
-            FROM produtos p
-            JOIN users u ON p.user_id = u.id
-            LEFT JOIN likes l ON p.id = l.produto_id
-            WHERE p.nome_produto LIKE %s OR p.descricao LIKE %s
-            GROUP BY p.id
-        """
-        cursor.execute(query, (f"%{termo_busca}%", f"%{termo_busca}%"))
-    else:
-        query = """
-            SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
-            COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
-            COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
-            FROM produtos p
-            JOIN users u ON p.user_id = u.id
-            LEFT JOIN likes l ON p.id = l.produto_id
-            GROUP BY p.id
-        """
-        cursor.execute(query)
-
+    # Consulta SQL para buscar produtos com paginação
+    query = """
+        SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
+        COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,
+        COALESCE(SUM(CASE WHEN l.tipo = 'dislike' THEN 1 ELSE 0 END), 0) as dislikes
+        FROM produtos p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN likes l ON p.id = l.produto_id
+        GROUP BY p.id
+        LIMIT %s OFFSET %s
+    """
+    cursor.execute(query, (produtos_por_pagina, offset))
     itens = cursor.fetchall()
+
+    # Conta o total de produtos para calcular o número total de páginas
+    cursor.execute("SELECT COUNT(*) FROM produtos")
+    total_produtos = cursor.fetchone()[0]
     cursor.close()
-    return render_template("produtos.html", itens=itens)
+
+    # Calcula o número total de páginas
+    total_paginas = (total_produtos + produtos_por_pagina - 1) // produtos_por_pagina
+
+    return render_template("produtos.html", itens=itens, pagina=pagina, total_paginas=total_paginas)
 
 @app.route('/like/<int:produto_id>', methods=['POST'])
 def like(produto_id):
@@ -345,16 +348,13 @@ def page_perfil(username):
 
 @app.route('/buscar', methods=['GET'])
 def buscar_produtos():
-    # Obtém o termo de busca da URL
     termo_busca = request.args.get('q', '').strip()
 
-    # Remove caracteres especiais e divide o termo em palavras-chave
     termo_busca = re.sub(r'[^\w\s]', '', termo_busca)  # Remove caracteres especiais
     palavras_chave = termo_busca.lower().split()  # Divide em palavras e converte para minúsculas
 
     cursor = get_db_cursor()
 
-    # Consulta SQL para buscar produtos com base nas palavras-chave
     query = """
         SELECT p.id, p.nome_produto, p.descricao, p.preco, p.imagem, u.username,
         COALESCE(SUM(CASE WHEN l.tipo = 'like' THEN 1 ELSE 0 END), 0) as likes,

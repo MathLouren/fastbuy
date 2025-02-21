@@ -218,7 +218,6 @@ height: auto;
 border-radius: 10px;
 }
 
-
 table {
 width: 100%;
 border-collapse: collapse;
@@ -922,4 +921,29 @@ margin: auto;
 
 .btn-comprar:hover {
     background-color: #d35400;
+}
+
+.paginacao {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.botao-paginacao, .pagina-atual {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+}
+
+.botao-paginacao:hover {
+    background-color: #f0f0f0;
+}
+
+.pagina-atual {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
 }

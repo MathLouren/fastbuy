@@ -47,4 +47,23 @@
             </article>
         {% endfor %}
     </section>
+
+    <!-- Controles de Paginação -->
+    <div class="paginacao">
+        {% if pagina > 1 %}
+            <a href="{{ url_for('page_produto', page=pagina-1) }}" class="botao-paginacao">Anterior</a>
+        {% endif %}
+
+        {% for p in range(1, total_paginas + 1) %}
+            {% if p == pagina %}
+                <span class="pagina-atual">{{ p }}</span>
+            {% else %}
+                <a href="{{ url_for('page_produto', page=p) }}" class="botao-paginacao">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if pagina < total_paginas %}
+            <a href="{{ url_for('page_produto', page=pagina+1) }}" class="botao-paginacao">Próximo</a>
+        {% endif %}
+    </div>
 {% endblock %}
