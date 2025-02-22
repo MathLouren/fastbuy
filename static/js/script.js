@@ -61,3 +61,55 @@ function formatarPreco(input) {
     }
 
 
+document.addEventListener("DOMContentLoaded", () => {
+    const links = document.querySelectorAll(".user_infos li a");
+
+    const setActiveItem = (activeLink) => {
+        links.forEach(link => link.classList.remove("active"));
+        activeLink.classList.add("active");
+    };
+
+    links.forEach(link => {
+        link.addEventListener("click", () => setActiveItem(link));
+    });
+
+    const currentUrl = window.location.href;
+    links.forEach(link => {
+        if (currentUrl.includes(link.querySelector("a").getAttribute("href"))) {
+            setActiveItem(link);
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const links = document.querySelectorAll(".user_infos a");
+    const conteudoDinamico = document.getElementById("conteudo-dinamico");
+
+    const carregarConteudo = async (pagina) => {
+        try {
+            const response = await fetch(`/dashboard/${pagina}`);
+            if (!response.ok) throw new Error("Erro ao carregar o conteúdo");
+
+            const html = await response.text();
+            conteudoDinamico.innerHTML = html;
+        } catch (error) {
+            console.error("Erro:", error);
+            conteudoDinamico.innerHTML = "<p>Erro ao carregar o conteúdo.</p>";
+        }
+    };
+
+    links.forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            links.forEach(link => link.classList.remove("active"));
+
+            link.classList.add("active");
+
+            const pagina = link.getAttribute("data-page");
+            carregarConteudo(pagina);
+        });
+    });
+
+    carregarConteudo("perfil");
+});

@@ -55,10 +55,6 @@ header ul li a {
     transition: background-color 0.3s ease;
 }
 
-header ul li a:hover , .user_infos li a:hover{
-    background-color: #444;
-}
-
 header .menu-toggle {
     display: none;
     flex-direction: column;
@@ -180,22 +176,29 @@ margin-top: 50px;
     margin: 0 auto;
 }
 
+.search_produtos form {
+    width: 100%;
+}
+
 .search_produtos form input {
-    padding-right: 30px;
-    height: 40px;
-    font-size: 16px;
-    width: 800px;
+    padding-right: 40px;
+    height: 50px;
+    font-size: 18px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
+    width: 100%;
+    max-width: 800px;
 }
 
 .search_produtos .search-icon {
     position: absolute;
-    top: 11px;
+    top: 33%;
     right: 10px;
     height: 20px;
     width: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
 }
 
 .category {
@@ -420,13 +423,13 @@ color: white;
 }
 
 .dashboard{
-width: 100%;
-max-width: 1000px;
-margin: auto;
+    width: 100%;
+    max-width: 1600px;
+    margin: auto;
 }
 
 .dashboard h1{
-margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .container_btns {
@@ -663,13 +666,19 @@ margin: auto;
     transition: background-color 0.3s ease;
 }
 
-.user_infos li a:hover{
-    color: #fff;
+header ul li a:hover , .user_infos li a:hover{
+    background-color: #444 !important;
+    color: #fff !important;
 }
 
+.active{
+    background-color: #444 !important;
+    color: #fff !important;
+}
 
 #produtos {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 20px;
     padding: 20px;
@@ -948,7 +957,7 @@ margin: auto;
     border-color: #007bff;
 }
 
-..about-container {
+.about-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
@@ -956,7 +965,7 @@ margin: auto;
 }
 
 .contact-info {
-    margin-top: 20px;
+    margin: 20px 0;
     text-align: left;
     background-color: #f9f9f9;
     padding: 15px;
@@ -991,10 +1000,21 @@ margin: auto;
 }
 
 .contact-info a, .contact-info strong {
-    color: #007bff !important;
+    color: #333 !important;
     text-decoration: none;
 }
 
 .contact-info a:hover {
     text-decoration: underline;
+}
+
+
+@media (max-width: 450px) {
+    .contact-info li{
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100%;
+    }
 }

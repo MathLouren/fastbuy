@@ -1,0 +1,10 @@
+<h2>Minhas Compras</h2>
+<div style="margin: 20px 0;">
+    <ul style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px;">
+    {% for anuncio in anuncios %}
+        <li>
+            <h2>{{ anuncio[1] }}</h2>
+        </li>
+    {% endfor %}
+</ul>
+</div>

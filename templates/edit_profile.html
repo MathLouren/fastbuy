@@ -1,0 +1,23 @@
+<form method="POST">
+    <h2>Olá, {{ user[1] }}! Bem-vindo ao seu Perfil</h2>
+    <div>
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" value="{{ user[1] }}" required class="{% if erro_nome %} input-error {% endif %}">
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ user[2] }}" required class="{% if erro_email %} input-error {% endif %}">
+    </div>
+    <div>
+        <label for="telephone">Telefone:</label>
+        <input type="text" id="telephone" name="telephone" value="{{ user[3] }}" title="Telefone no formato (XX) XXXXX-XXXX" oninput="formatarTelefone(this)" pattern="\(\d{2}\)\s\d{4,5}-\d{4}" required class="{% if erro_telefone %} input-error {% endif %}">
+    </div>
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="{{ user[4] }}" required class="{% if erro_username %} input-error {% endif %}">
+    </div>
+    <div class="container_btns">
+        <input type="submit" class="btn-submit" value="Atualizar Informações">
+        <a href="{{ url_for('logout') }}" class="btn-submit" id="logout-btn">Logout</a>
+    </div>
+</form>

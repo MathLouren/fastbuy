@@ -11,43 +11,26 @@
                 {{ mensagem }}
             </div>
         {% endif %}
-        
+
+        <!-- Menu Superior -->
         <section>
             <ul class="user_infos">
                 <li>
-                    <a href="#">Perfil</a>
+                    <a href="#" data-page="perfil" class="active">Perfil</a>
                 </li>
                 <li>
-                    <a href="#">Minhas Compras</a>
+                    <a href="#" data-page="compras">Minhas Compras</a>
                 </li>
                 <li>
-                    <a href="{{ url_for('anuncios') }}">Meus Anuncios</a>
+                    <a href="#" data-page="anuncios">Meus Anúncios</a>
                 </li>
             </ul>
         </section>
 
-        <h1>Olá, {{ user[1] }}! Bem-vindo ao seu painel</h1>
-        <form method="POST">
-            <div>
-                <label for="name">Nome:</label>
-                <input type="text" id="name" name="name" value="{{ user[1] }}" required class="{% if erro_nome %} input-error {% endif %}">
-            </div>
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="{{ user[2] }}" required class="{% if erro_email %} input-error {% endif %}">
-            </div>
-            <div>
-                <label for="telephone">Telefone:</label>
-                <input type="text" id="telephone" name="telephone" value="{{ user[3] }}" title="Telefone no formato (XX) XXXXX-XXXX" oninput="formatarTelefone(this)" pattern="\(\d{2}\)\s\d{4,5}-\d{4}" required class="{% if erro_telefone %} input-error {% endif %}">
-            </div>
-            <div>
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" value="{{ user[4] }}" required class="{% if erro_username %} input-error {% endif %}">
-            </div>
-            <div class="container_btns">
-                <input type="submit" class="btn-submit" value="Atualizar Informações">
-                <a href="{{ url_for('logout') }}" class="btn-submit" id="logout-btn">Logout</a>
-            </div>
-        </form>
+        <div id="conteudo-dinamico">
+
+        </div>
     </div>
+
+
 {% endblock %}

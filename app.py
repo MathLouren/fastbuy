@@ -223,47 +223,6 @@ def produto(produto_name, username):
     else:
         return 'Página não encontrada', 404
 
-@app.route('/dashboard', methods=['GET', 'POST'])
-def dashboard():
-    if 'logged_in' not in session:
-        return redirect(url_for('login'))
-
-    user_id = session['user_id']
-    cursor = get_db_cursor()
-    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
-    cursor.close()
-
-    mensagem = None
-    erro_email = False
-    erro_telefone = False
-    erro_username = False
-
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        telephone = request.form['telephone']
-        username = request.form['username']
-
-        cursor = get_db_cursor()
-        cursor.execute("SELECT id FROM users WHERE (email = %s OR telephone = %s OR username = %s) AND id != %s",
-                       (email, telephone, username, user_id))
-        existing_user = cursor.fetchone()
-
-        if existing_user:
-            erro_email = True
-            mensagem = "Este e-mail, telefone ou nome de usuário já está registrado. Tente outro."
-        else:
-            cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s, username = %s WHERE id = %s",
-                           (name, email, telephone, username, user_id))
-            mysql.connection.commit()
-            session['user_name'] = name
-            mensagem = "Informações atualizadas com sucesso!"
-
-        cursor.close()
-
-    return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone, erro_username=erro_username)
-
 @app.route('/vender', methods=['GET', 'POST'])
 def vender_produto():
     if 'logged_in' not in session:
@@ -326,7 +285,64 @@ def vender_produto():
 
     return render_template('vender.html', mensagem=mensagem, erro=erro)
 
-@app.route('/anuncios')
+@app.route('/dashboard', methods=['GET', 'POST'])
+def dashboard():
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    cursor = get_db_cursor()
+    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    mensagem = None
+    erro_email = False
+    erro_telefone = False
+    erro_username = False
+
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        telephone = request.form['telephone']
+        username = request.form['username']
+
+        cursor = get_db_cursor()
+        cursor.execute("SELECT id FROM users WHERE (email = %s OR telephone = %s OR username = %s) AND id != %s",
+                       (email, telephone, username, user_id))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            erro_email = True
+            mensagem = "Este e-mail, telefone ou nome de usuário já está registrado. Tente outro."
+        else:
+            cursor.execute("UPDATE users SET name = %s, email = %s, telephone = %s, username = %s WHERE id = %s",
+                           (name, email, telephone, username, user_id))
+            mysql.connection.commit()
+            session['user_name'] = name
+            mensagem = "Informações atualizadas com sucesso!"
+
+        cursor.close()
+
+    return render_template('dashboard.html', user=user, mensagem=mensagem, erro_email=erro_email, erro_telefone=erro_telefone, erro_username=erro_username)
+
+@app.route('/dashboard/perfil')
+def perfil():
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    cursor = get_db_cursor()
+    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+
+    if not user:
+        return "Usuário não encontrado", 404
+
+    return render_template('edit_profile.html', user=user)
+
+@app.route('/dashboard/anuncios')
 def anuncios():
     if 'logged_in' not in session:
         return redirect(url_for('login'))
@@ -337,6 +353,18 @@ def anuncios():
     anuncios = cursor.fetchall()
     cursor.close()
     return render_template('anuncios.html', anuncios=anuncios)
+
+@app.route('/dashboard/compras')
+def minhas_compras():
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    cursor = get_db_cursor()
+    cursor.execute("SELECT id, nome_produto, descricao, preco, imagem, likes, dislikes FROM produtos WHERE user_id = %s", (user_id,))
+    anuncios = cursor.fetchall()
+    cursor.close()
+    return render_template('compras.html', anuncios=anuncios)
 
 @app.route('/editar_anuncio/<int:anuncio_id>', methods=['GET', 'POST'])
 def editar_anuncio(anuncio_id):
@@ -359,9 +387,9 @@ def editar_anuncio(anuncio_id):
                        (nome_produto, descricao, preco_float, anuncio_id))
         mysql.connection.commit()
         cursor.close()
-        return redirect(url_for('anuncios'))
+        return redirect(url_for('dashboard'))  # Redireciona para a aba "Meus Anúncios"
 
-    return render_template('editar_anuncio.html', anuncio=anuncio)
+    return render_template('edit_anuncio.html', anuncio=anuncio)
 
 @app.route('/remover_anuncio/<int:anuncio_id>')
 def remover_anuncio(anuncio_id):
@@ -372,7 +400,7 @@ def remover_anuncio(anuncio_id):
     cursor.execute("DELETE FROM produtos WHERE id = %s", (anuncio_id,))
     mysql.connection.commit()
     cursor.close()
-    return redirect(url_for('anuncios'))
+    return redirect(url_for('dashboard'))  # Redireciona para a aba "Meus Anúncios"
 
 @app.route('/<username>')
 def page_perfil(username):
