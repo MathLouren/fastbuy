@@ -1,5 +1,9 @@
 <form method="POST">
     <h2>Olá, {{ user[1] }}! Bem-vindo ao seu Perfil</h2>
+    <div class="pic_edit">
+        <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="profile image">
+        <input type="file" id="imagem" name="imagem" required class="input_edit" accept=".png, .jpg, .jpeg" >
+    </div>
     <div>
         <label for="name">Nome:</label>
         <input type="text" id="name" name="name" value="{{ user[1] }}" required class="{% if erro_nome %} input-error {% endif %}">
@@ -15,6 +19,14 @@
     <div>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" value="{{ user[4] }}" required class="{% if erro_username %} input-error {% endif %}">
+    </div>
+    <div>
+        <label for="bio">Bio:</label>
+        <textarea id="bio" name="bio" rows="4" placeholder="Escreva uma breve descrição sobre você..." maxlength="500" class="{% if erro_bio %} input-error {% endif %}">{{ user[5] if user[5] else 'Nenhuma bio cadastrada.' }}</textarea>
+        <small id="bio-counter">Até 500 caracteres</small>
+        {% if erro_bio %}
+            <small class="error-message">{{ erro_bio }}</small>
+        {% endif %}
     </div>
     <div class="container_btns">
         <input type="submit" class="btn-submit" value="Atualizar Informações">

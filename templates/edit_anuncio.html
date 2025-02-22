@@ -19,7 +19,7 @@
 
         <div>
             <label for="preco">Preço:</label>
-            <input type="text" id="preco" name="preco" required placeholder="Digite o preço do produto" class="input-field" oninput="formatarPreco(this)" value="{{ anuncio[3] }}">
+            <input type="text" id="preco" name="preco" required placeholder="Digite o preço do produto" class="input-field" oninput="formatarPreco(this)" value='R$ {{ "{:,.2f}".format(anuncio[3]) }}'>
         </div>
 
         <input type="submit" value="Salvar Alterações">

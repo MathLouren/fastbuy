@@ -113,3 +113,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     carregarConteudo("perfil");
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+    const bioTextarea = document.getElementById("bio");
+    const bioCounter = document.getElementById("bio-counter");
+
+    if (bioTextarea && bioCounter) {
+        bioTextarea.addEventListener("input", () => {
+            const length = bioTextarea.value.length;
+            bioCounter.textContent = `${length}/500 caracteres`;
+        });
+
+        bioCounter.textContent = `${bioTextarea.value.length}/500 caracteres`;
+    }
+});
+
+
+
+document.querySelector('.pic_edit').addEventListener('click', function() {
+    document.getElementById('imagem').click();
+});
+
+document.getElementById('imagem').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelector('.pic_edit img').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});

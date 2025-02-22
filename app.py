@@ -333,7 +333,7 @@ def perfil():
 
     user_id = session['user_id']
     cursor = get_db_cursor()
-    cursor.execute("SELECT id, name, email, telephone, username FROM users WHERE id = %s", (user_id,))
+    cursor.execute("SELECT id, name, email, telephone, username, bio FROM users WHERE id = %s", (user_id,))
     user = cursor.fetchone()
     cursor.close()
 
